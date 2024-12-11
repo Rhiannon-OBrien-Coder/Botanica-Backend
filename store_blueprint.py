@@ -55,3 +55,23 @@ def create_store():
         return jsonify({"store": created_store}), 201
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@store_blueprint.route('/store/<store_id>', methods=['PUT'])
+def update_seed(store_id):
+    try:
+        store_data = request.json
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM store WHERE id = %s", (store_id,))
+        store_to_update = cursor.fetchone()
+        if store_to_update is None:
+            return jsonify({"error": "Seed not found"}), 404
+        connection.commit()
+        cursor.execute("UPDATE store SET name = %s, diifficulty = %s WHERE id = %s RETURNING *",
+                        (store_data["name"], store_data["diifficulty"], store_id))
+        updated_store = cursor.fetchone()
+        connection.commit()
+        connection.close()
+        return jsonify({"updated_store": updated_store}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500

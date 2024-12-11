@@ -41,3 +41,26 @@ def create_shed():
         return jsonify({"shed": created_shed}), 201
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@shed_blueprint.route('/shed/<shed_id>', methods=['PUT'])
+@token_required
+def update_shed(shed_id):
+    try:
+        updated_shed_data = request.json
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM shed WHERE id = %s", (shed_id,))
+        shed_to_update = cursor.fetchone()
+        if shed_to_update is None:
+            return jsonify({"error": "Plot not found"}), 404
+        connection.commit()
+        if shed_to_update["gardener"] is not g.user["id"]:
+            return jsonify({"error": "Unauthorized"}), 401
+        cursor.execute("UPDATE shed SET type = %s WHERE id = %s RETURNING *",
+                        (updated_shed_data["type"], shed_id))
+        updated_shed = cursor.fetchone()
+        connection.commit()
+        connection.close()
+        return jsonify({"user_plot": updated_shed}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
