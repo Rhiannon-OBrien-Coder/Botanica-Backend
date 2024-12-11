@@ -5,8 +5,36 @@ import psycopg2, psycopg2.extras
 seed_blueprint = Blueprint('seed_blueprint', __name__)
 
 @seed_blueprint.route('/seeds', methods=['GET'])
-def plot_options_index():
-    return jsonify({"message": "seeds index lives here"})
+def store_index():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        query = "SELECT * FROM seeds"
+        cursor.execute(query)
+        seeds = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return jsonify({"seeds": seeds}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
+    
+@seed_blueprint.route('/seeds/<seed_id>', methods=['GET'])
+def seeds_by_id(seed_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        query = "SELECT * FROM seeds WHERE id =" + str(seed_id) + ";"
+        cursor.execute(query)
+        seeds = cursor.fetchall()
+        if seeds:
+            connection.commit()
+            connection.close()
+            return jsonify({"seeds": seeds}), 200
+        else:
+            connection.close()
+            return jsonify({"error": "Seed not found"}), 404
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
 
 @seed_blueprint.route('/seeds', methods=['POST'])
 def create_seed():

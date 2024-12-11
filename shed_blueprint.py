@@ -6,8 +6,19 @@ from auth_middleware import token_required
 shed_blueprint = Blueprint('shed_blueprint', __name__)
 
 @shed_blueprint.route('/shed', methods=['GET'])
-def plot_options_index():
-    return jsonify({"message": "shed index lives here"})
+@token_required
+def shed_index():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        query = "SELECT * FROM shed WHERE gardener =" + str(g.user["id"]) + ";"
+        cursor.execute(query)
+        shed = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return jsonify({"shed": shed}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
 
 @shed_blueprint.route('/shed', methods=['POST'])
 @token_required

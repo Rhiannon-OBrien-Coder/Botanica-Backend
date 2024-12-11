@@ -7,8 +7,18 @@ plants_blueprint = Blueprint('plants_blueprint', __name__)
 
 @plants_blueprint.route('/plants', methods=['GET'])
 @token_required
-def plot_index():
-    return jsonify({"message": "plant index lives here"})
+def plant_index():
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        query = "SELECT * FROM plants WHERE gardener =" + str(g.user["id"]) + ";"
+        cursor.execute(query)
+        plants = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return jsonify({"plants": plants}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
 
 @plants_blueprint.route('/plants', methods=['POST'])
 @token_required

@@ -6,7 +6,17 @@ store_blueprint = Blueprint('store_blueprint', __name__)
 
 @store_blueprint.route('/store', methods=['GET'])
 def store_index():
-    return jsonify({"message": "store index lives here"})
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        query = "SELECT * FROM store"
+        cursor.execute(query)
+        store = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return jsonify({"store": store}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
 
 @store_blueprint.route('/store', methods=['POST'])
 def create_store():
