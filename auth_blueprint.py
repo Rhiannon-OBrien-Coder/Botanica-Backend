@@ -1,4 +1,3 @@
-from flask import Blueprint
 import os
 import jwt
 import bcrypt
@@ -7,6 +6,10 @@ from flask import Blueprint, jsonify, request
 from db_helpers import get_db_connection
 
 authentication_blueprint = Blueprint('authentication_blueprint', __name__)
+
+@authentication_blueprint.route('/')
+def index():
+  return "Hello, world!"
 
 @authentication_blueprint.route('/auth/signup', methods=['POST'])
 def signup():
