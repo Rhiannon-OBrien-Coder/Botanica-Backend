@@ -60,3 +60,26 @@ def create_plot():
         return jsonify({"user_plot": create_user_plot}), 201
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+
+@user_plots_blueprint.route('/user-plots/<user_plots_id>', methods=['PUT'])
+@token_required
+def update_plot(user_plots_id):
+    try:
+        updated_user_plot_data = request.json
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM user_plots WHERE id = %s", (user_plots_id,))
+        user_plot_to_update = cursor.fetchone()
+        if user_plot_to_update is None:
+            return jsonify({"error": "Plot not found"}), 404
+        connection.commit()
+        if user_plot_to_update["gardener"] is not g.user["id"]:
+            return jsonify({"error": "Unauthorized"}), 401
+        cursor.execute("UPDATE user_plots SET name = %s, type = %s WHERE id = %s RETURNING *",
+                        (updated_user_plot_data["name"], updated_user_plot_data["type"], user_plots_id))
+        updated_user_plot = cursor.fetchone()
+        connection.commit()
+        connection.close()
+        return jsonify({"user_plot": updated_user_plot}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500

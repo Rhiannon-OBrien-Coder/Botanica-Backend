@@ -60,3 +60,26 @@ def create_plants():
         return jsonify({"plants": created_plants}), 201
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@plants_blueprint.route('/plants/<plants_id>', methods=['PUT'])
+@token_required
+def update_plant(plants_id):
+    try:
+        updated_plant_data = request.json
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM plants WHERE id = %s", (plants_id,))
+        plant_to_update = cursor.fetchone()
+        if plant_to_update is None:
+            return jsonify({"error": "Plot not found"}), 404
+        connection.commit()
+        if plant_to_update["gardener"] is not g.user["id"]:
+            return jsonify({"error": "Unauthorized"}), 401
+        cursor.execute("UPDATE plants SET name = %s, type = %s, shed = %s, plot = %s, planted = %s, position = %s, status = %s, age = %s, sow_day = %s, watered = %s WHERE id = %s RETURNING *",
+                        (updated_plant_data["name"], updated_plant_data["type"], updated_plant_data["shed"], updated_plant_data["plot"], updated_plant_data["planted"], updated_plant_data["position"], updated_plant_data["status"], updated_plant_data["age"], updated_plant_data["sow_day"], updated_plant_data["watered"], plants_id))
+        updated_plant = cursor.fetchone()
+        connection.commit()
+        connection.close()
+        return jsonify({"updated_plant": updated_plant}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
