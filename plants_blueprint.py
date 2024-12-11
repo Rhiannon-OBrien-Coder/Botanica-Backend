@@ -19,11 +19,11 @@ def create_plants():
         connection = get_db_connection()
         cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
-                        INSERT INTO plantss (gardener, type, shed)
-                        VALUES (%s, %s, %s)
+                        INSERT INTO plants (gardener, name, type, shed)
+                        VALUES (%s, %s, %s, %s)
                         RETURNING *
                         """,
-                        (new_plants['gardener'], new_plants['type'], new_plants['shed'])
+                        (new_plants['gardener'], new_plants['name'], new_plants['type'], new_plants['shed'])
         )
         created_plants = cursor.fetchone()
         connection.commit()

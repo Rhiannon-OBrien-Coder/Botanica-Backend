@@ -18,7 +18,7 @@ def create_shed():
         connection = get_db_connection()
         cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
-                        INSERT INTO sheds (gardener, type)
+                        INSERT INTO shed (gardener, type)
                         VALUES (%s, %s)
                         RETURNING *
                         """,
