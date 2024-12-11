@@ -8,7 +8,17 @@ user_plots_blueprint = Blueprint('user_plots_blueprint', __name__)
 @user_plots_blueprint.route('/user-plots', methods=['GET'])
 @token_required
 def plot_index():
-    return jsonify({"message": "user-plot index lives here"})
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        query = "SELECT * FROM user_plots WHERE gardener =" + str(g.user["id"]) + ";"
+        cursor.execute(query)
+        user_plots = cursor.fetchall()
+        connection.commit()
+        connection.close()
+        return jsonify({"user_plots": user_plots}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
 
 @user_plots_blueprint.route('/user-plots', methods=['POST'])
 @token_required
