@@ -19,6 +19,25 @@ def plot_index():
         return jsonify({"user_plots": user_plots}), 200
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@user_plots_blueprint.route('/user-plots/<user_plots_id>', methods=['GET'])
+@token_required
+def plot_by_id(user_plots_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        query = "SELECT * FROM user_plots WHERE id = " + str(user_plots_id) + " AND gardener = " + str(g.user["id"]) + ";"
+        cursor.execute(query)
+        user_plots = cursor.fetchall()
+        if user_plots:
+            connection.commit()
+            connection.close()
+            return jsonify({"user_plots": user_plots}), 200
+        else:
+            connection.close()
+            return jsonify({"error": "Plot not found"}), 404
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
 
 @user_plots_blueprint.route('/user-plots', methods=['POST'])
 @token_required

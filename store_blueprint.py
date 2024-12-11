@@ -17,6 +17,24 @@ def store_index():
         return jsonify({"store": store}), 200
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@store_blueprint.route('/store/<store_id>', methods=['GET'])
+def store_by_id(store_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        query = "SELECT * FROM store WHERE id =" + str(store_id) + ";"
+        cursor.execute(query)
+        store = cursor.fetchall()
+        if store:
+            connection.commit()
+            connection.close()
+            return jsonify({"store": store}), 200
+        else:
+            connection.close()
+            return jsonify({"error": "store not found"}), 404
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
 
 @store_blueprint.route('/store', methods=['POST'])
 def create_store():
