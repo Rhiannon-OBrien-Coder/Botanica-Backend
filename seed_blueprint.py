@@ -12,15 +12,14 @@ def plot_options_index():
 def create_seed():
     try:
         new_seed = request.json
-        new_seed["author"] = g.user["id"]
         connection = get_db_connection()
         cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
-                        INSERT INTO seeds (author, title, text, category)
-                        VALUES (%s, %s, %s, %s)
+                        INSERT INTO seeds (name, description, season, price, growth_period, store)
+                        VALUES (%s, %s, %s, %s, %s, %s)
                         RETURNING *
                         """,
-                        (new_seed['author'], new_seed['title'], new_seed['text'], new_seed['category'])
+                        (new_seed['name'], new_seed['description'], new_seed['season'], new_seed['price'], new_seed['growth_period'], new_seed['store'])
         )
         created_seed = cursor.fetchone()
         connection.commit()
