@@ -83,3 +83,23 @@ def update_plant(plants_id):
         return jsonify({"updated_plant": updated_plant}), 200
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@plants_blueprint.route('/plants/<plant_id>', methods=['DELETE'])
+@token_required
+def delete_plant(plant_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM plants WHERE plants.id = %s", (plant_id,))
+        plant_to_update = cursor.fetchone()
+        if plant_to_update is None:
+            return jsonify({"error": "plant not found"}), 404
+        connection.commit()
+        if plant_to_update["author"] is not g.user["id"]:
+            return jsonify({"error": "Unauthorized"}), 401
+        cursor.execute("DELETE FROM plants WHERE plants.id = %s", (plant_id,))
+        connection.commit()
+        connection.close()
+        return jsonify({"message": "plant deleted successfully"}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500

@@ -76,3 +76,22 @@ def update_plot_option(plot_options_id):
         return jsonify({"updated_plot_option": updated_plot_option}), 200
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@plot_options_blueprint.route('/plot-options/<plot_options_id>', methods=['DELETE'])
+def delete_plot_options(plot_options_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM plot_options WHERE plot_options.id = %s", (plot_options_id,))
+        plot_to_update = cursor.fetchone()
+        if plot_to_update is None:
+            return jsonify({"error": "Plot not found"}), 404
+        connection.commit()
+        if plot_to_update["author"] is not g.user["id"]:
+            return jsonify({"error": "Unauthorized"}), 401
+        cursor.execute("DELETE FROM plot_options WHERE plot_options.id = %s", (plot_options_id,))
+        connection.commit()
+        connection.close()
+        return jsonify({"message": "Plot deleted successfully"}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500

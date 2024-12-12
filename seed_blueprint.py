@@ -75,3 +75,20 @@ def update_seed(seed_id):
         return jsonify({"updated_seed": updated_seed}), 200
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@seed_blueprint.route('/seeds/<seed_id>', methods=['DELETE'])
+def delete_seed(seed_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM seeds WHERE seeds.id = %s", (seed_id,))
+        seed_to_update = cursor.fetchone()
+        if seed_to_update is None:
+            return jsonify({"error": "seed not found"}), 404
+        connection.commit()
+        cursor.execute("DELETE FROM seeds WHERE seeds.id = %s", (seed_id,))
+        connection.commit()
+        connection.close()
+        return jsonify({"message": "seed deleted successfully"}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500

@@ -75,3 +75,20 @@ def update_seed(store_id):
         return jsonify({"updated_store": updated_store}), 200
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@store_blueprint.route('/store/<store_id>', methods=['DELETE'])
+def delete_store(delete_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM store WHERE store.id = %s", (delete_id,))
+        store_to_delete = cursor.fetchone()
+        if store_to_delete is None:
+            return jsonify({"error": "store not found"}), 404
+        connection.commit()
+        cursor.execute("DELETE FROM store WHERE store.id = %s", (delete_id,))
+        connection.commit()
+        connection.close()
+        return jsonify({"message": "store deleted successfully"}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500

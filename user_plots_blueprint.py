@@ -83,3 +83,23 @@ def update_plot(user_plots_id):
         return jsonify({"user_plot": updated_user_plot}), 200
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@user_plots_blueprint.route('/user_plots/<user_plot_id>', methods=['DELETE'])
+@token_required
+def delete_user_plot(user_plot_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM user_plots WHERE user_plots.id = %s", (user_plot_id,))
+        user_plot_to_update = cursor.fetchone()
+        if user_plot_to_update is None:
+            return jsonify({"error": "user_plot not found"}), 404
+        connection.commit()
+        if user_plot_to_update["author"] is not g.user["id"]:
+            return jsonify({"error": "Unauthorized"}), 401
+        cursor.execute("DELETE FROM user_plots WHERE user_plots.id = %s", (user_plot_id,))
+        connection.commit()
+        connection.close()
+        return jsonify({"message": "user_plot deleted successfully"}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500

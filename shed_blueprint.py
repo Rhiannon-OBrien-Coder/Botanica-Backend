@@ -64,3 +64,23 @@ def update_shed(shed_id):
         return jsonify({"user_plot": updated_shed}), 200
     except Exception as error:
         return jsonify({"error": str(error)}), 500
+    
+@shed_blueprint.route('/shed/<shed_id>', methods=['DELETE'])
+@token_required
+def delete_shed(shed_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("SELECT * FROM shed WHERE shed.id = %s", (shed_id,))
+        shed_to_update = cursor.fetchone()
+        if shed_to_update is None:
+            return jsonify({"error": "shed not found"}), 404
+        connection.commit()
+        if shed_to_update["author"] is not g.user["id"]:
+            return jsonify({"error": "Unauthorized"}), 401
+        cursor.execute("DELETE FROM shed WHERE shed.id = %s", (shed_id,))
+        connection.commit()
+        connection.close()
+        return jsonify({"message": "shed deleted successfully"}), 200
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
