@@ -21,4 +21,8 @@ app.register_blueprint(seed_blueprint)
 app.register_blueprint(shed_blueprint)
 app.register_blueprint(store_blueprint)
 
+@app.route("/")
+def index():
+        return "Welcome to the Botanica database"
+
 app.run()
