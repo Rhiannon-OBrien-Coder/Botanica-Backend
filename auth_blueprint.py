@@ -3,16 +3,14 @@ import jwt
 import bcrypt
 import psycopg2, psycopg2.extras
 from flask import Blueprint, jsonify, request, g
+from flask_cors import CORS, cross_origin
 from db_helpers import get_db_connection
 from auth_middleware import token_required
 
 authentication_blueprint = Blueprint('authentication_blueprint', __name__)
 
-@authentication_blueprint.route('/')
-def index():
-  return "Hello, world!"
-
 @authentication_blueprint.route('/auth/signup', methods=['POST'])
+@cross_origin()
 def signup():
     try:
         new_user_data = request.get_json()
@@ -35,6 +33,7 @@ def signup():
         connection.close()
 
 @authentication_blueprint.route('/auth/signin', methods=["POST"])
+@cross_origin()
 def signin():
     try:
         sign_in_form_data = request.get_json()
@@ -55,6 +54,7 @@ def signin():
         connection.close()
 
 @authentication_blueprint.route('/users/<users_id>', methods=['PUT'])
+@cross_origin()
 @token_required
 def update_user(users_id):
     try:
@@ -78,6 +78,7 @@ def update_user(users_id):
         return jsonify({"error": str(error)}), 500
     
 @authentication_blueprint.route('/users/<user_id>', methods=['DELETE'])
+@cross_origin()
 @token_required
 def delete_user(user_id):
     try:

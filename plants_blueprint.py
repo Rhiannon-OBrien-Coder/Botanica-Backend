@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, g
+from flask_cors import cross_origin
 from db_helpers import get_db_connection
 import psycopg2, psycopg2.extras
 from auth_middleware import token_required
@@ -6,6 +7,7 @@ from auth_middleware import token_required
 plants_blueprint = Blueprint('plants_blueprint', __name__)
 
 @plants_blueprint.route('/plants', methods=['GET'])
+@cross_origin()
 @token_required
 def plant_index():
     try:
@@ -21,6 +23,7 @@ def plant_index():
         return jsonify({"error": str(error)}), 500
 
 @plants_blueprint.route('/plants/<plants_id>', methods=['GET'])
+@cross_origin()
 @token_required
 def plant_by_id(plants_id):
     try:
@@ -40,6 +43,7 @@ def plant_by_id(plants_id):
         return jsonify({"error": str(error)}), 500
 
 @plants_blueprint.route('/plants', methods=['POST'])
+@cross_origin()
 @token_required
 def create_plants():
     try:
@@ -62,6 +66,7 @@ def create_plants():
         return jsonify({"error": str(error)}), 500
     
 @plants_blueprint.route('/plants/<plants_id>', methods=['PUT'])
+@cross_origin()
 @token_required
 def update_plant(plants_id):
     try:
@@ -85,6 +90,7 @@ def update_plant(plants_id):
         return jsonify({"error": str(error)}), 500
     
 @plants_blueprint.route('/plants/<plant_id>', methods=['DELETE'])
+@cross_origin()
 @token_required
 def delete_plant(plant_id):
     try:

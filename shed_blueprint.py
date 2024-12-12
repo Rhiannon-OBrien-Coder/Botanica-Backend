@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, g
+from flask_cors import cross_origin
 from db_helpers import get_db_connection
 import psycopg2, psycopg2.extras
 from auth_middleware import token_required
@@ -6,6 +7,7 @@ from auth_middleware import token_required
 shed_blueprint = Blueprint('shed_blueprint', __name__)
 
 @shed_blueprint.route('/shed', methods=['GET'])
+@cross_origin()
 @token_required
 def shed_index():
     try:
@@ -21,6 +23,7 @@ def shed_index():
         return jsonify({"error": str(error)}), 500
 
 @shed_blueprint.route('/shed', methods=['POST'])
+@cross_origin()
 @token_required
 def create_shed():
     try:
@@ -43,6 +46,7 @@ def create_shed():
         return jsonify({"error": str(error)}), 500
     
 @shed_blueprint.route('/shed/<shed_id>', methods=['PUT'])
+@cross_origin()
 @token_required
 def update_shed(shed_id):
     try:
@@ -66,6 +70,7 @@ def update_shed(shed_id):
         return jsonify({"error": str(error)}), 500
     
 @shed_blueprint.route('/shed/<shed_id>', methods=['DELETE'])
+@cross_origin()
 @token_required
 def delete_shed(shed_id):
     try:

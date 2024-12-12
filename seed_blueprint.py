@@ -1,10 +1,12 @@
 from flask import Blueprint, jsonify, request, g
+from flask_cors import cross_origin
 from db_helpers import get_db_connection
 import psycopg2, psycopg2.extras
 
 seed_blueprint = Blueprint('seed_blueprint', __name__)
 
 @seed_blueprint.route('/seeds', methods=['GET'])
+@cross_origin()
 def store_index():
     try:
         connection = get_db_connection()
@@ -19,6 +21,7 @@ def store_index():
         return jsonify({"error": str(error)}), 500
     
 @seed_blueprint.route('/seeds/<seed_id>', methods=['GET'])
+@cross_origin()
 def seeds_by_id(seed_id):
     try:
         connection = get_db_connection()
@@ -37,6 +40,7 @@ def seeds_by_id(seed_id):
         return jsonify({"error": str(error)}), 500
 
 @seed_blueprint.route('/seeds', methods=['POST'])
+@cross_origin()
 def create_seed():
     try:
         new_seed = request.json
@@ -57,6 +61,7 @@ def create_seed():
         return jsonify({"error": str(error)}), 500
 
 @seed_blueprint.route('/seeds/<seed_id>', methods=['PUT'])
+@cross_origin()
 def update_seed(seed_id):
     try:
         seed_data = request.json
@@ -77,6 +82,7 @@ def update_seed(seed_id):
         return jsonify({"error": str(error)}), 500
     
 @seed_blueprint.route('/seeds/<seed_id>', methods=['DELETE'])
+@cross_origin()
 def delete_seed(seed_id):
     try:
         connection = get_db_connection()

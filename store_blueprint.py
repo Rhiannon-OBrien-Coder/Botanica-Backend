@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, request, g
+from flask import Blueprint, jsonify, request
+from flask_cors import cross_origin
 from db_helpers import get_db_connection
 import psycopg2, psycopg2.extras
 
 store_blueprint = Blueprint('store_blueprint', __name__)
 
 @store_blueprint.route('/store', methods=['GET'])
+@cross_origin()
 def store_index():
     try:
         connection = get_db_connection()
@@ -19,6 +21,7 @@ def store_index():
         return jsonify({"error": str(error)}), 500
     
 @store_blueprint.route('/store/<store_id>', methods=['GET'])
+@cross_origin()
 def store_by_id(store_id):
     try:
         connection = get_db_connection()
@@ -37,6 +40,7 @@ def store_by_id(store_id):
         return jsonify({"error": str(error)}), 500
 
 @store_blueprint.route('/store', methods=['POST'])
+@cross_origin()
 def create_store():
     try:
         new_store = request.json
@@ -57,6 +61,7 @@ def create_store():
         return jsonify({"error": str(error)}), 500
     
 @store_blueprint.route('/store/<store_id>', methods=['PUT'])
+@cross_origin()
 def update_seed(store_id):
     try:
         store_data = request.json
@@ -77,6 +82,7 @@ def update_seed(store_id):
         return jsonify({"error": str(error)}), 500
     
 @store_blueprint.route('/store/<store_id>', methods=['DELETE'])
+@cross_origin()
 def delete_store(delete_id):
     try:
         connection = get_db_connection()

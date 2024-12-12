@@ -1,4 +1,5 @@
 from flask import Blueprint, jsonify, request, g
+from flask_cors import cross_origin
 from db_helpers import get_db_connection
 import psycopg2, psycopg2.extras
 from auth_middleware import token_required
@@ -6,6 +7,7 @@ from auth_middleware import token_required
 user_plots_blueprint = Blueprint('user_plots_blueprint', __name__)
 
 @user_plots_blueprint.route('/user-plots', methods=['GET'])
+@cross_origin()
 @token_required
 def plot_index():
     try:
@@ -21,6 +23,7 @@ def plot_index():
         return jsonify({"error": str(error)}), 500
     
 @user_plots_blueprint.route('/user-plots/<user_plots_id>', methods=['GET'])
+@cross_origin()
 @token_required
 def plot_by_id(user_plots_id):
     try:
@@ -40,6 +43,7 @@ def plot_by_id(user_plots_id):
         return jsonify({"error": str(error)}), 500
 
 @user_plots_blueprint.route('/user-plots', methods=['POST'])
+@cross_origin()
 @token_required
 def create_plot():
     try:
@@ -62,6 +66,7 @@ def create_plot():
         return jsonify({"error": str(error)}), 500
 
 @user_plots_blueprint.route('/user-plots/<user_plots_id>', methods=['PUT'])
+@cross_origin()
 @token_required
 def update_plot(user_plots_id):
     try:
@@ -85,6 +90,7 @@ def update_plot(user_plots_id):
         return jsonify({"error": str(error)}), 500
     
 @user_plots_blueprint.route('/user_plots/<user_plot_id>', methods=['DELETE'])
+@cross_origin()
 @token_required
 def delete_user_plot(user_plot_id):
     try:

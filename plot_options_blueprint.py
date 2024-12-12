@@ -1,10 +1,12 @@
-from flask import Blueprint, jsonify, request, g
+from flask import Blueprint, jsonify, request
+from flask_cors import cross_origin
 from db_helpers import get_db_connection
 import psycopg2, psycopg2.extras
 
 plot_options_blueprint = Blueprint('plot_options_blueprint', __name__)
 
 @plot_options_blueprint.route('/plot-options', methods=['GET'])
+@cross_origin()
 def plot_options_index():
     try:
         connection = get_db_connection()
@@ -19,6 +21,7 @@ def plot_options_index():
         return jsonify({"error": str(error)}), 500
     
 @plot_options_blueprint.route('/plot-options/<plot_options_id>', methods=['GET'])
+@cross_origin()
 def plot_options_by_id(plot_options_id):
     try:
         connection = get_db_connection()
@@ -37,6 +40,7 @@ def plot_options_by_id(plot_options_id):
         return jsonify({"error": str(error)}), 500
 
 @plot_options_blueprint.route('/plot-options', methods=['POST'])
+@cross_origin()
 def create_plot_option():
     try:
         new_plot_option = request.json
@@ -57,6 +61,7 @@ def create_plot_option():
         return jsonify({"error": str(error)}), 500
     
 @plot_options_blueprint.route('/plot-options/<plot_options_id>', methods=['PUT'])
+@cross_origin()
 def update_plot_option(plot_options_id):
     try:
         plot_options_data = request.json
@@ -77,6 +82,7 @@ def update_plot_option(plot_options_id):
         return jsonify({"error": str(error)}), 500
     
 @plot_options_blueprint.route('/plot-options/<plot_options_id>', methods=['DELETE'])
+@cross_origin()
 def delete_plot_options(plot_options_id):
     try:
         connection = get_db_connection()
