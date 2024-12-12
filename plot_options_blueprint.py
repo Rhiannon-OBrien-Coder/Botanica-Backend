@@ -1,7 +1,6 @@
 from flask import Blueprint, jsonify, request, g
 from db_helpers import get_db_connection
 import psycopg2, psycopg2.extras
-from auth_middleware import token_required
 
 plot_options_blueprint = Blueprint('plot_options_blueprint', __name__)
 
@@ -87,8 +86,6 @@ def delete_plot_options(plot_options_id):
         if plot_to_update is None:
             return jsonify({"error": "Plot not found"}), 404
         connection.commit()
-        if plot_to_update["author"] is not g.user["id"]:
-            return jsonify({"error": "Unauthorized"}), 401
         cursor.execute("DELETE FROM plot_options WHERE plot_options.id = %s", (plot_options_id,))
         connection.commit()
         connection.close()
