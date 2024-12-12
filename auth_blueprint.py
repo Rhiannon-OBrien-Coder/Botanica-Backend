@@ -53,7 +53,7 @@ def signin():
     finally:
         connection.close()
 
-@authentication_blueprint.route('/users/<users_id>', methods=['PUT'])
+@authentication_blueprint.route('/auth/<users_id>', methods=['PUT'])
 @cross_origin()
 @token_required
 def update_user(users_id):
@@ -77,7 +77,7 @@ def update_user(users_id):
     except Exception as error:
         return jsonify({"error": str(error)}), 500
     
-@authentication_blueprint.route('/users/<user_id>', methods=['DELETE'])
+@authentication_blueprint.route('/auth/<user_id>', methods=['DELETE'])
 @cross_origin()
 @token_required
 def delete_user(user_id):
