@@ -53,6 +53,26 @@ def signin():
     finally:
         connection.close()
 
+@authentication_blueprint.route('/auth/<users_id>', methods=['GET'])
+@cross_origin()
+@token_required
+def user_by_id(users_id):
+    try:
+        connection = get_db_connection()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        query = "SELECT * FROM users WHERE id = " + str(users_id) + ";"
+        cursor.execute(query)
+        users = cursor.fetchall()
+        if users:
+            connection.commit()
+            connection.close()
+            return jsonify({"users": users}), 200
+        else:
+            connection.close()
+            return jsonify({"error": "User not found"}), 404
+    except Exception as error:
+        return jsonify({"error": str(error)}), 500
+
 @authentication_blueprint.route('/auth/<users_id>', methods=['PUT'])
 @cross_origin()
 @token_required
