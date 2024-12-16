@@ -21,29 +21,6 @@ def shed_index():
         return jsonify({"shed": shed}), 200
     except Exception as error:
         return jsonify({"error": str(error)}), 500
-
-@shed_blueprint.route('/shed', methods=['POST'])
-@cross_origin()
-@token_required
-def create_shed():
-    try:
-        new_shed = request.json
-        new_shed["gardener"] = g.user["id"]
-        connection = get_db_connection()
-        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cursor.execute("""
-                        INSERT INTO shed (gardener, type)
-                        VALUES (%s, %s)
-                        RETURNING *
-                        """,
-                        (new_shed['gardener'], new_shed['type'])
-        )
-        created_shed = cursor.fetchone()
-        connection.commit()
-        connection.close()
-        return jsonify({"shed": created_shed}), 201
-    except Exception as error:
-        return jsonify({"error": str(error)}), 500
     
 @shed_blueprint.route('/shed/<shed_id>', methods=['PUT'])
 @cross_origin()
