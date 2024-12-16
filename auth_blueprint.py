@@ -3,7 +3,7 @@ import jwt
 import bcrypt
 import psycopg2, psycopg2.extras
 from flask import Blueprint, jsonify, request, g
-from flask_cors import CORS, cross_origin
+from flask_cors import cross_origin
 from db_helpers import get_db_connection
 from auth_middleware import token_required
 
@@ -24,9 +24,18 @@ def signup():
         hashed_password = bcrypt.hashpw(bytes(new_user_data["password"], 'utf-8'), bcrypt.gensalt())
         cursor.execute("INSERT INTO users (email, password) VALUES (%s, %s) RETURNING id, email", (new_user_data["email"], hashed_password.decode('utf-8')))
         created_user = cursor.fetchone()
+        cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
+        cursor.execute("""
+                        INSERT INTO shed (gardener, type)
+                        VALUES (%d, %s)
+                        RETURNING *
+                        """,
+                        (created_user['id'], 'beginner' )
+        )
+        created_shed = cursor.fetchone()
         connection.commit()
         token = jwt.encode(created_user, os.getenv('JWT_SECRET'))
-        return jsonify({"token": token, "user": created_user}), 201
+        return jsonify({"token": token, "user": created_user, "shed": created_shed}), 201
     except Exception as error:
         return jsonify({"error": str(error)}), 401
     finally:
