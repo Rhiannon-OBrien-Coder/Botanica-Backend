@@ -27,7 +27,7 @@ def signup():
         cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
         cursor.execute("""
                         INSERT INTO shed (gardener, type)
-                        VALUES (%d, %s)
+                        VALUES (%s, %s)
                         RETURNING *
                         """,
                         (created_user['id'], 'beginner' )
