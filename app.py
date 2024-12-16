@@ -25,4 +25,5 @@ app.register_blueprint(store_blueprint)
 def index():
         return "Welcome to the Botanica database"
 
-app.run()
+if __name__ == '__main__':
+    app.run()
