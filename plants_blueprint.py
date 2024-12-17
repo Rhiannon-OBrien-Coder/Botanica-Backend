@@ -51,7 +51,7 @@ def create_plants():
         new_plants["gardener"] = g.user["id"]
         connection = get_db_connection()
         cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cursor.execute("SELECT id FROM shed WHERE gardener = %s", (new_plants["gardener"]))
+        cursor.execute("""SELECT id FROM shed WHERE gardener = %s""", (new_plants["gardener"]))
         new_plants["shed"] = cursor.fetchone()
         cursor.execute("""
                         INSERT INTO plants (gardener, name, type, shed)
