@@ -89,7 +89,7 @@ def update_plot(user_plots_id):
     except Exception as error:
         return jsonify({"error": str(error)}), 500
     
-@user_plots_blueprint.route('/user_plots/<user_plot_id>', methods=['DELETE'])
+@user_plots_blueprint.route('/user-plots/<user_plot_id>', methods=['DELETE'])
 @cross_origin()
 @token_required
 def delete_user_plot(user_plot_id):
