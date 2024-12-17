@@ -101,7 +101,7 @@ def delete_user_plot(user_plot_id):
         if user_plot_to_update is None:
             return jsonify({"error": "user_plot not found"}), 404
         connection.commit()
-        if user_plot_to_update["author"] is not g.user["id"]:
+        if user_plot_to_update["gardener"] is not g.user["id"]:
             return jsonify({"error": "Unauthorized"}), 401
         cursor.execute("DELETE FROM user_plots WHERE id = %s", (user_plot_id,))
         connection.commit()
