@@ -3,6 +3,9 @@ from flask_cors import cross_origin
 from db_helpers import get_db_connection
 import psycopg2, psycopg2.extras
 from auth_middleware import token_required
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 plants_blueprint = Blueprint('plants_blueprint', __name__)
 
@@ -47,13 +50,15 @@ def plant_by_id(plants_id):
 @token_required
 def create_plants():
     try:
+        logging.info(new_plants)
         new_plants = request.json
         new_plants["gardener"] = g.user["id"]
         connection = get_db_connection()
         cursor = connection.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cursor.execute("""SELECT id FROM shed WHERE gardener = %s""", (new_plants["gardener"]))
+        query = "SELECT id FROM shed WHERE gardener = " + str(g.user["id"]) + ";"
+        cursor.execute(query)
         new_plants["shed"] = cursor.fetchone()
-        print(new_plants["shed"])
+        logging.info(new_plants)
         cursor.execute("""
                         INSERT INTO plants (gardener, name, type, shed)
                         VALUES (%s, %s, %s, %s)
